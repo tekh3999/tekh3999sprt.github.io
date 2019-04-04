@@ -423,10 +423,10 @@ rotateObject4(mesh4, -90,0,0);
 		
 		
 		 	particleSystem = new THREE.GPUParticleSystem( {
-				maxParticles: 1300
+				maxParticles: 7500
 			} );
 
-			//scene.add( particleSystem );
+		 scene.add( particleSystem );
 
 			// options passed during each spawned
 
@@ -444,7 +444,7 @@ rotateObject4(mesh4, -90,0,0);
 			};
 
 			spawnerOptions = {
-				spawnRate: 1300,
+				spawnRate: 7500,
 				horizontalSpeed: 1.5,
 				verticalSpeed: 1.33,
 				timeScale: 1
@@ -460,7 +460,7 @@ rotateObject4(mesh4, -90,0,0);
 			gui.add( options, "lifetime", .1, 10 );
 			gui.add( options, "turbulence", 0, 1 );
 
-			gui.add( spawnerOptions, "spawnRate", 10, 1300 );
+			gui.add( spawnerOptions, "spawnRate", 10, 7500 );
 			gui.add( spawnerOptions, "timeScale", -1, 1 );
 
 			//
@@ -503,7 +503,7 @@ rotateObject4(mesh4, -90,0,0);
 					// Yep, that's really it.	Spawning particles is super cheap, and once you spawn them, the rest of
 					// their lifecycle is handled entirely on the GPU, driven by a time uniform updated below
 
-					//particleSystem.spawnParticle( options );
+					particleSystem.spawnParticle( options );
 
 				}
 
@@ -535,9 +535,9 @@ rotateObject4(mesh4, -90,0,0);
 		mesh4.rotation.y = mesh.rotation.y - 0.01;
 			particleSystem.update( tick );
 
-			//render();
-			//stats.update();
-//animate();
+			render();
+			stats.update();
+animate();
 		 
 	})
 
