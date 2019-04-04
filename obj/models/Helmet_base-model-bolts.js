@@ -2,7 +2,7 @@
 
 "metadata":
 {
-"sourceFile": "Helmet_base-model.max",
+"sourceFile": "Helmet_base-model-optimized.max",
 "generatedBy": "3ds max ThreeJSExporter",
 "formatVersion": 3.1,
 "vertices": 1330,
