@@ -1,0 +1,548 @@
+ <!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<!--<meta name="viewport" container="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">-->
+<!-- three.js library -->
+<script src='vendor/three.js/build/three.min.js'></script>
+<script src='vendor/HemisphereLight.js'></script>
+<script src='vendor/HemisphereLightHelper.js'></script>
+<!-- ar.js -->
+<script src="build/ar.js"></script>
+
+  
+    <script src="./js/controls/TrackballControls.js"></script>
+    <script src="./js/libs/dat.gui.min.js"></script>
+    <script src="./js/libs/stats.min.js"></script>
+    <script src="./js/GPUParticleSystem.js"></script>
+	
+	
+<script>THREEx.ArToolkitContext.baseURL = ''</script>
+
+<style>
+#container {
+    margin: 0px auto;
+    width: 0px;
+    height: 0px;
+    border: 0px;
+}
+<!--#click{
+    width: 500px;
+    height: 375px;
+    background-color: #666;
+}-->
+
+#btn {
+    position: absolute;
+    display: block;
+    z-index: 99;
+    left: 2%;
+    top: 94%;
+	width: 30px;
+    height: 30px;
+	background-color: #0020FF
+	
+    }
+	
+	 .a1{
+	 color:white;
+	 }
+	
+ 
+</style>
+
+<body style='margin : 0px; overflow: hidden; font-family: Monospace;'> 
+
+</div>
+<div id="container"></div>
+<!--<video autoplay = "true" id = "video">
+</video>-->
+ 
+<button id='btn' onClick='video'><p><a class="a1"></a><p/></button>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
+
+
+
+</div><script>
+
+ 	var camera, tick = 0,
+			scene, renderer, clock = new THREE.Clock(),
+			controls, container, gui = new dat.GUI( { width: 100 } ),
+			options, spawnerOptions, particleSystem;
+
+				
+ 
+ 
+ 
+ 
+ 
+  container = document.getElementById( 'container' );
+ 	
+		
+ var renderer	= new THREE.WebGLRenderer({
+		antialias: true,
+		alpha: true
+	});
+//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	renderer.setSize( 1024, 1024 );
+	renderer.domElement.style.position = 'absolute'
+	renderer.domElement.style.top = '0px'
+	renderer.domElement.style.left = '0px'
+	renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			container.appendChild( renderer.domElement );
+document.body.appendChild( renderer.domElement );
+
+var textureLoader = new THREE.TextureLoader();
+var onRenderFcts= [];
+var scene	= new THREE.Scene();
+
+
+var camera = new THREE.Camera();
+
+	 scene.add(camera);
+	 
+	 var video = document.querySelector("#videoElement");
+	 
+if (navigator.mediaDevices.getUserMedia) {
+	navigator.mediaDevices.getUserMedia({camera: true})
+	.then (function(stream) {
+	camera.srcObject = stream;
+	camera.play();
+	})
+	.catch(function(err0r) {
+	console.log("somthing went wrong!");
+	});
+	}
+	
+	////////////////////////////////////////////////////////////////////////////////
+	//          handle arToolkitSource
+	////////////////////////////////////////////////////////////////////////////////
+
+	var arToolkitSource = new THREEx.ArToolkitSource({
+		// to read from the webcam 
+		sourceType : 'webcam',
+		
+		// // to read from an image
+		// sourceType : 'image',
+		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/images/img.jpg',		
+
+		// to read from a video
+		// sourceType : 'video',
+		// sourceUrl : THREEx.ArToolkitContext.baseURL + '../data/videos/headtracking.mp4',		
+	})
+
+	arToolkitSource.init(function onReady(){
+		onResize()
+	})
+	
+	// handle resize
+	window.addEventListener('resize', function(){
+		onResize()
+	})
+	function onResize(){
+		arToolkitSource.onResize()	
+		arToolkitSource.copySizeTo(renderer.domElement)	
+		if( arToolkitContext.arController !== null ){
+			arToolkitSource.copySizeTo(arToolkitContext.arController.canvas)	
+		}	
+	}
+	////////////////////////////////////////////////////////////////////////////////
+	//          initialize arToolkitContext
+	////////////////////////////////////////////////////////////////////////////////
+	
+
+	// create atToolkitContext
+	var arToolkitContext = new THREEx.ArToolkitContext({
+		cameraParametersUrl: THREEx.ArToolkitContext.baseURL + 'data/data/camera_para.dat',
+		detectionMode: 'mono',
+	})
+	// initialize it
+	arToolkitContext.init(function onCompleted(){
+		// copy projection matrix to camera
+		camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+	})
+
+	// update artoolkit on every frame
+	onRenderFcts.push(function(){
+		if( arToolkitSource.ready === false )	return
+
+		arToolkitContext.update( arToolkitSource.domElement )
+		
+		// update scene.visible if the marker is seen
+		scene.visible = camera.visible
+	})
+		
+	////////////////////////////////////////////////////////////////////////////////
+	//          Create a ArMarkerControls
+	////////////////////////////////////////////////////////////////////////////////
+	
+	// init controls for camera
+	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+		type : 'pattern',
+		patternUrl : THREEx.ArToolkitContext.baseURL + 'data/data/pattern-marker.patt',
+//patternUrl : THREEx.ArToolkitContext.baseURL + 'data/data/patt.hiro',
+		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
+		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
+		changeMatrixMode: 'cameraTransformMatrix'
+	})
+	// as we do changeMatrixMode: 'cameraTransformMatrix', start with invisible scene
+	scene.visible = false
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		add an object in the scene
+	//////////////////////////////////////////////////////////////////////////////////
+
+	// add a torus knot	
+ 
+	
+	
+	///////////////////////////////////////////////
+	//			Add Lights						 //
+	//////////////////////////////////////////////
+	 var lightdi = new THREE.DirectionalLight( 0xffddcc, 10 )
+	 lightdi.position.set( 0, 100, 0 );
+			scene.add( lightdi );
+		var lightamb = new THREE.AmbientLight(  0x000000, 28 );
+			 lightamb.position.set( 0, 50, 0 );
+			scene.add( lightamb );
+			
+				//hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 5 );
+				//hemiLight.color.setHSL( 0.6, 1, 0.6 );
+				//hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+				////hemiLight.position.set( 0, 50, 0 );
+				//scene.add( hemiLight );
+
+			//hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
+			//scene.add( hemiLightHelper );
+		 
+	/////////////////////////////////////////////////////
+	//     add json object                             //
+	/////////////////////////////////////////////////////
+	
+	loadMymodel();
+	function loadMymodel( callback ) {
+
+			var loader = new THREE.JSONLoader();
+			//loader.load('obj/myfemale4/genesisfemale-5.js', function (geometry) {
+			    //loader.load( 'obj/books/tpomA.js', function( geometry ) {
+				 
+				//loader.load( 'obj/models/spaceshuttle.js', function( geometry ) {
+			 
+				loader.load( 'obj/models/Helmet_base-model.js', function( geometry ) {
+				 
+			//loader.load( 'obj/models/building_model.js', function( geometry ) {
+				 var material = new THREE.MeshPhongMaterial( {
+				   map: textureLoader.load('Images/Texans-logoUV.jpg'),
+				side: THREE.DoubleSide,
+                                emissive: 0x154360,
+								//map: map,			add if you want to use texture map
+                              color: 0x996633,
+								  envMap: scCube,
+								specular: 0x050505,
+				shininess: 175
+				} );
+
+				mesh = new THREE.Mesh( geometry, material );
+				scene.add( mesh );
+				mesh.scale.set( 0.8, 0.8, 0.8 );
+					// Setsup mesh rotation animation.
+	  function rotateObject(object, degreeX=0, degreeY= 0, degreeZ=0){
+			
+			object.rotateX(THREE.Math.degToRad(degreeX));
+			object.rotateY(THREE.Math.degToRad(degreeY));
+			object.rotateZ(THREE.Math.degToRad(degreeZ));
+			}
+		//to sit standing up
+			//rotateObject(mesh, -90,-90,-90);
+		rotateObject(mesh, -90,0,0);
+		} );
+		}
+		
+		/////////////////////////////
+		//	Helmet Strap and bolts //
+		/////////////////////////////
+		loadMymodelII();
+	function loadMymodelII( callback ) {
+		var loader2 = new THREE.JSONLoader();
+		loader2.load( 'obj/models/Helmet_base-mode-facemask.js', function( geometry ) {
+		 var material = new THREE.MeshPhongMaterial( {
+				    side: THREE.DoubleSide,
+                                //emissive: 0x154360,
+								//map: map,			add if you want to use texture map
+                              color: 0x996633,
+								  //envMap: scCube,
+								specular: 0x050505,
+				shininess: 3
+				} );
+ 
+				mesh2 = new THREE.Mesh( geometry, material );
+				scene.add( mesh2 );
+				mesh2.scale.set( 0.8, 0.8, 0.8 );
+					// Setsup mesh rotation animation.
+	  function rotateObject2(object, degreeX=0, degreeY= 0, degreeZ=0){
+			
+			object.rotateX(THREE.Math.degToRad(degreeX));
+			object.rotateY(THREE.Math.degToRad(degreeY));
+			object.rotateZ(THREE.Math.degToRad(degreeZ));
+}
+//to sit standing up
+//rotateObject(mesh, -90,-90,-90);
+rotateObject2(mesh2, -90,0,0);
+} );
+}
+		
+		/////////////////////////////
+		//	Helmet facemask-front //
+		/////////////////////////////
+		loadMymodeface();
+	function loadMymodeface( callback ) {
+		var loader3 = new THREE.JSONLoader();
+		loader3.load( 'obj/models/Helmet_base-mode-facemaskfront.js', function( geometry ) {
+		 var material = new THREE.MeshPhongMaterial( {
+				    side: THREE.DoubleSide,
+                                //emissive: 0x154360,
+								//map: map,			add if you want to use texture map
+                              color: 0x000000,
+								  envMap: scCube,
+								specular: 0x050505,
+				shininess: 95
+				} );
+
+				mesh3 = new THREE.Mesh( geometry, material );
+				scene.add( mesh3 );
+				mesh3.scale.set( 0.8, 0.8, 0.8 );
+					// Sets up mesh rotation animation.
+	  function rotateObject3(object, degreeX=0, degreeY= 0, degreeZ=0){
+			
+			object.rotateX(THREE.Math.degToRad(degreeX));
+			object.rotateY(THREE.Math.degToRad(degreeY));
+			object.rotateZ(THREE.Math.degToRad(degreeZ));
+}
+//to sit standing up
+//rotateObject(mesh, -90,-90,-90);
+rotateObject3(mesh3, -90,0,0);
+} );
+}
+
+/////////////////////////////
+		//	Helmet bolts //
+		/////////////////////////////
+		loadMymodelbolts();
+	function loadMymodelbolts( callback ) {
+		var loader4 = new THREE.JSONLoader();
+		loader4.load( 'obj/models/Helmet_base-model-bolts.js', function( geometry ) {
+		 var material = new THREE.MeshPhongMaterial( {
+				    side: THREE.DoubleSide,
+                                //emissive: 0x154360,
+								//map: map,			add if you want to use texture map
+                              color: 0x000000,
+								  envMap: scCube,
+								specular: 0xac0c0c0,
+				shininess: 50
+				} );
+
+				mesh4 = new THREE.Mesh( geometry, material );
+				scene.add( mesh4 );
+				mesh4.scale.set( 0.8, 0.8, 0.8 );
+					// Setsup mesh rotation animation.
+	  function rotateObject4(object, degreeX=0, degreeY= 0, degreeZ=0){
+			
+			object.rotateX(THREE.Math.degToRad(degreeX));
+			object.rotateY(THREE.Math.degToRad(degreeY));
+			object.rotateZ(THREE.Math.degToRad(degreeZ));
+}
+//to sit standing up
+//rotateObject(mesh, -90,-90,-90);
+rotateObject4(mesh4, -90,0,0);
+} );
+}
+		
+		////////////////////////////
+		//			Skybox		  //
+		///////////////////////////
+		var sphere, cube;
+	 var scCube;
+    var selectableObjs = [];
+    var width = window.innerWidth, height = window.innerHeight;
+	 //Add other scene elements
+        drawSimpleSkybox();
+       drawShapes();
+		
+		function drawSimpleSkybox() {
+        // define path and box sides images
+        var path = 'textures/';
+        var sides = [ path + 'sbox_px.jpg', path + 'sbox_nx.jpg', path + 'sbox_py.jpg', path + 'sbox_py.jpg', path + 'sbox_pz.jpg', path + 'sbox_nz.jpg' ];
+
+        // load images
+        scCube = THREE.ImageUtils.loadTextureCube(sides);
+        scCube.format = THREE.RGBFormat;
+
+        // prepare skybox material (shader)
+        var skyShader = THREE.ShaderLib["cube"];
+        skyShader.uniforms["tCube"].value = scCube;
+        var skyMaterial = new THREE.ShaderMaterial( {
+            fragmentShader: skyShader.fragmentShader, vertexShader: skyShader.vertexShader,
+            uniforms: skyShader.uniforms, depthWrite: false, side: THREE.BackSide
+        });
+
+        // create Mesh with cube geometry and add to the scene
+        var skyBox = new THREE.Mesh(new THREE.BoxGeometry(500, 500, 500), skyMaterial);
+        skyMaterial.needsUpdate = true;
+
+        skyBox.UserData = {name:"skyBox"};
+
+     // scene.add(skyBox);
+ 
+		
+    }
+	
+	
+	   function drawShapes() {
+
+        var manager = new THREE.LoadingManager();
+        manager.onProgress = function ( item, loaded, total ) {
+
+            console.log( item, loaded, total );
+
+        };
+		}
+		
+		
+		
+		 	particleSystem = new THREE.GPUParticleSystem( {
+				maxParticles: 250000
+			} );
+
+			scene.add( particleSystem );
+
+			// options passed during each spawned
+
+			options = {
+				position: new THREE.Vector3(),
+				positionRandomness: .3,
+				velocity: new THREE.Vector3(),
+				velocityRandomness: .5,
+				color: 0xaa88ff,
+				colorRandomness: .2,
+				turbulence: .5,
+				lifetime: 2,
+				size: 5,
+				sizeRandomness: 1
+			};
+
+			spawnerOptions = {
+				spawnRate: 7500,
+				horizontalSpeed: 1.5,
+				verticalSpeed: 1.33,
+				timeScale: 1
+			};
+
+			//
+
+			gui.add( options, "velocityRandomness", 0, 3 );
+			gui.add( options, "positionRandomness", 0, 3 );
+			gui.add( options, "size", 1, 20 );
+			gui.add( options, "sizeRandomness", 0, 25 );
+			gui.add( options, "colorRandomness", 0, 1 );
+			gui.add( options, "lifetime", .1, 10 );
+			gui.add( options, "turbulence", 0, 1 );
+
+			gui.add( spawnerOptions, "spawnRate", 10, 7500 );
+			gui.add( spawnerOptions, "timeScale", -1, 1 );
+
+			//
+
+			stats = new Stats();
+			container.appendChild( stats.dom );
+
+		 
+
+		
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+		}
+			
+				function animate() {
+
+			requestAnimationFrame( animate );
+
+			//controls.update();
+
+			var delta = clock.getDelta() * spawnerOptions.timeScale;
+			tick += delta;
+
+			if ( tick < 0 ) tick = 0;
+
+			if ( delta > 0 ) {
+
+				options.position.x = Math.sin( tick * spawnerOptions.horizontalSpeed ) * 2;
+				options.position.y = Math.sin( tick * spawnerOptions.verticalSpeed ) * 5;
+				options.position.z = Math.sin( tick * spawnerOptions.horizontalSpeed + spawnerOptions.verticalSpeed ) * 5;
+
+				for ( var x = 0; x < spawnerOptions.spawnRate * delta; x++ ) {
+
+					// Yep, that's really it.	Spawning particles is super cheap, and once you spawn them, the rest of
+					// their lifecycle is handled entirely on the GPU, driven by a time uniform updated below
+
+					particleSystem.spawnParticle( options );
+
+				}
+
+			}
+
+		
+		}
+
+		function render() {
+
+			renderer.render( scene, camera );
+
+		}
+		 
+ 
+	//////////////////////////////////////////////////////////////////////////////////
+	//		render the whole thing on the page
+	//////////////////////////////////////////////////////////////////////////////////
+	
+	 
+
+	// render the scene
+	onRenderFcts.push(function(){
+		renderer.render( scene, camera );
+		
+		mesh.rotation.y = mesh.rotation.y - 0.01;
+		mesh2.rotation.y = mesh.rotation.y - 0.01;
+		mesh3.rotation.y = mesh.rotation.y - 0.01
+		mesh4.rotation.y = mesh.rotation.y - 0.01;
+			particleSystem.update( tick );
+
+			render();
+			stats.update();
+animate();
+		 
+	})
+
+	// run the rendering loop
+	var lastTimeMsec= null
+	requestAnimationFrame(function animate(nowMsec){
+		// keep looping
+		requestAnimationFrame( animate );
+		// measure time
+		lastTimeMsec	= lastTimeMsec || nowMsec-1000/60
+		var deltaMsec	= Math.min(200, nowMsec - lastTimeMsec)
+		lastTimeMsec	= nowMsec
+		// call each update function
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct(deltaMsec/1000, nowMsec/1000)
+		})
+	})
+	
+</script>
+</body>
+</html>
