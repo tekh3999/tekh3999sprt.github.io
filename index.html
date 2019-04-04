@@ -410,7 +410,7 @@ rotateObject4(mesh4, -90,0,0);
 		
 		
 		 	particleSystem = new THREE.GPUParticleSystem( {
-				maxParticles: 7500
+				maxParticles: 2500
 			} );
 
 			scene.add( particleSystem );
@@ -431,7 +431,7 @@ rotateObject4(mesh4, -90,0,0);
 			};
 
 			spawnerOptions = {
-				spawnRate: 7500,
+				spawnRate: 2500,
 				horizontalSpeed: 1.5,
 				verticalSpeed: 1.33,
 				timeScale: 1
@@ -447,7 +447,7 @@ rotateObject4(mesh4, -90,0,0);
 			gui.add( options, "lifetime", .1, 10 );
 			gui.add( options, "turbulence", 0, 1 );
 
-			gui.add( spawnerOptions, "spawnRate", 10, 7500 );
+			gui.add( spawnerOptions, "spawnRate", 10, 2500 );
 			gui.add( spawnerOptions, "timeScale", -1, 1 );
 
 			//
