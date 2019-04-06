@@ -111,9 +111,9 @@ var scene	= new THREE.Scene();
 
 
 var camera = new THREE.Camera();
-
+    
 	 scene.add(camera);
-	 
+	
 	 var video = document.querySelector("#videoElement");
 	 
 if (navigator.mediaDevices.getUserMedia) {
@@ -404,7 +404,7 @@ rotateObject4(mesh4, -90,0,0);
 
         skyBox.UserData = {name:"skyBox"};
 
-     // scene.add(skyBox);
+      scene.add(skyBox);
  
 		
     }
@@ -512,11 +512,7 @@ rotateObject4(mesh4, -90,0,0);
 		
 		}
 
-		function render() {
-
-			renderer.render( scene, camera );
-
-		}
+		 
 		 
  
 	//////////////////////////////////////////////////////////////////////////////////
@@ -534,7 +530,7 @@ rotateObject4(mesh4, -90,0,0);
 		mesh3.rotation.y = mesh.rotation.y - 0.01
 		mesh4.rotation.y = mesh.rotation.y - 0.01;
 			particleSystem.update( tick );
-
+camera.rotation.y = 90;
 			//render();
 			stats.update();
 animate();
