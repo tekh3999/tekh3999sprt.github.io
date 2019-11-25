@@ -202,7 +202,9 @@
 			light.position.set( 1, 1, -5 );
 			scene.add( light );
 			
-			 
+			var light = new THREE.AmbientLight( 0xccccff,  1);
+			light.position.set( -1, -100, 0.5 );
+			scene.add( light );
 			
 			
 	/////////////////////////////////////////////////////
@@ -213,9 +215,9 @@
 	function loadMymodel( callback ) {
 
 			var loader = new THREE.JSONLoader();
-			loader.load( 'obj/models/DeAndre_Hopkins_test14.js', function( geometry ) {
 			//loader.load( 'obj/models/DeAndre_Hopkins_test13.js', function( geometry ) {
-			//loader.load( 'obj/models/testGen.js', function( geometry ) {
+			loader.load( 'obj/models/DeAndre_Hopkins_posed_test15.js', function( geometry ) {
+			 
 			 
 
 				var material = new THREE.MeshPhongMaterial( {
@@ -224,15 +226,15 @@
 //transparent : true,
 		//opacity: 0.9,
 		   // side: THREE.DoubleSide,
-					map: textureLoader.load('Images/DeAndre_Hopkins_DiffuseMap_fixed_mesh1.jpg'),
-					//map: textureLoader.load('Images/test_diffuse_b!.jpg'),
+					//map: textureLoader.load('Images/DeAndre_Hopkins_DiffuseMap_fixed_mesh1.jpg'),
+					map: textureLoader.load('Images/Dhop_base1DiffuseMap.jpg'),
 						
 				shininess:25
 				} );
 
 				mesh = new THREE.Mesh( geometry, material );
 				scene.add( mesh );
-				mesh.scale.set( 7, 7, 7 );
+				mesh.scale.set( 9, 9, 9 );
 				//Smooth object if mesh is triangulated 
 				mesh.geometry.computeVertexNormals(true);
 				//mesh.position.set(0, -20, 0);
@@ -270,7 +272,7 @@ rotateObject(mesh, -90,0,0);
  
 				mesh2 = new THREE.Mesh( geometry, material );
 				scene.add( mesh2 );
-				mesh2.scale.set( 7, 7, 7 );
+				mesh2.scale.set( 9, 9, 9 );
 				 mesh2.geometry.computeVertexNormals(true);
 					// Setsup mesh rotation animation.
 	  function rotateObject2(object, degreeX=0, degreeY= 0, degreeZ=0){
@@ -302,7 +304,7 @@ rotateObject2(mesh2, -90,0,0);
  
 				mesh3 = new THREE.Mesh( geometry, material );
 				scene.add( mesh3 );
-				mesh3.scale.set( 7, 7, 7 );
+				mesh3.scale.set( 9, 9, 9 );
 				 mesh3.geometry.computeVertexNormals(true);
 				 
 					// Setup mesh rotation animation.
