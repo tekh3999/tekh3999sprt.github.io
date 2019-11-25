@@ -18134,11 +18134,7 @@
 				_gl.texParameteri( textureType, _gl.TEXTURE_MAG_FILTER, filterFallback( texture.magFilter ) );
 				_gl.texParameteri( textureType, _gl.TEXTURE_MIN_FILTER, filterFallback( texture.minFilter ) );
 
-				if ( texture.minFilter !== NearestFilter && texture.minFilter !== LinearFilter ) {
-
-					console.warn( 'THREE.WebGLRenderer: Texture is not power of two. Texture.minFilter should be set to THREE.NearestFilter or THREE.LinearFilter.', texture );
-
-				}
+			 
 
 			}
 
