@@ -1,30 +1,26 @@
- <!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="en">
 <meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <!--<meta name="viewport" container="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">-->
 <!-- three.js library -->
-<script src='vendor/three.js/build/three.min.js'></script>
-<script src='vendor/HemisphereLight.js'></script>
-<script src='vendor/HemisphereLightHelper.js'></script>
+<!--<script src='vendor/three.js/build/three.min.js'></script>-->
+<script src='build/three.js'></script>
 <!-- ar.js -->
 <script src="build/ar.js"></script>
-
-  
-    <script src="./js/controls/TrackballControls.js"></script>
-    <script src="./js/libs/dat.gui.min.js"></script>
-    <script src="./js/libs/stats.min.js"></script>
-    <script src="./js/GPUParticleSystem.js"></script>
-	
-	
 <script>THREEx.ArToolkitContext.baseURL = ''</script>
 
 <style>
-#container {
+<!--#container {
     margin: 0px auto;
-    width: 0px;
-    height: 0px;
-    border: 0px;
-}
+    width: 500px;
+    height: 375px;
+    border: 10px #333 solid;
+}-->
 <!--#click{
     width: 500px;
     height: 375px;
@@ -35,20 +31,8 @@
     position: absolute;
     display: block;
     z-index: 99;
-    left: 2%;
-    top: 90%;
-	width: 60px;
-    height: 30px;
-	background-color: #0020FF
-	  color: cadetblue;
-    }
-	
-	#btn2 {
-    position: absolute;
-    display: block;
-    z-index: 99;
-    left: 5%;
-    top: 94%;
+    left: 0%;
+    top: 0%;
 	width: 30px;
     height: 30px;
 	background-color: #0020FF
@@ -63,54 +47,59 @@
 </style>
 
 <body style='margin : 0px; overflow: hidden; font-family: Monospace;'> 
-
- 
-<div id="container"></div>
+</div>
 <!--<video autoplay = "true" id = "video">
 </video>-->
- <button id="btn" onclick="window.location.href = '  https://futureimagecomics.com/';">Home</button>
- <script>
+ 
+<button id='btn' onClick='video'><p><a class="a1"></a><p/></button>
+<div style='position: absolute; top: 10px; width:100%; text-align: center; z-index: 1;'>
 
- 	var camera, tick = 0,
-			scene, renderer, clock = new THREE.Clock(),
-			controls, container, gui = new dat.GUI( { width: 100 } ),
-			options, spawnerOptions, particleSystem;
 
-				
+
+</div><script>
+
  
- 
- 
- 
- 
-  container = document.getElementById( 'container' );
- 	
-		
- var renderer	= new THREE.WebGLRenderer({
+
+
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Init
+	//////////////////////////////////////////////////////////////////////////////////
+
+ // init renderer
+	var renderer	= new THREE.WebGLRenderer({
 		antialias: true,
 		alpha: true
 	});
-//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
-	renderer.setSize( 1024, 768 );
+	var fov = 45;
+	//renderer.setClearColor(new THREE.Color('lightgrey'), 0)
+	 renderer.setSize( window.innerWidth, window.innerHeight );
+	 renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.domElement.style.position = 'absolute'
 	renderer.domElement.style.top = '0px'
 	renderer.domElement.style.left = '0px'
-	renderer.setPixelRatio( window.devicePixelRatio );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			container.appendChild( renderer.domElement );
-document.body.appendChild( renderer.domElement );
-
-var textureLoader = new THREE.TextureLoader();
-var onRenderFcts= [];
-var scene	= new THREE.Scene();
-
-
-var camera = new THREE.Camera();
-    
-	 scene.add(camera);
+	document.body.appendChild( renderer.domElement );
 	
-	 var video = document.querySelector("#videoElement");
-	 
-if (navigator.mediaDevices.getUserMedia) {
+	var textureLoader = new THREE.TextureLoader();
+
+	// array of functions for the rendering loop
+	var onRenderFcts= [];
+
+	// init scene and camera
+	var scene	= new THREE.Scene();
+		
+	//////////////////////////////////////////////////////////////////////////////////
+	//		Initialize a basic camera
+	//////////////////////////////////////////////////////////////////////////////////
+
+	// Create a camera
+	var camera = new THREE.Camera();
+	scene.add(camera);
+	
+	
+	var video = document.querySelector("#videoElement");
+	//var video = new THREE.camera();
+	
+	if (navigator.mediaDevices.getUserMedia) {
 	navigator.mediaDevices.getUserMedia({camera: true})
 	.then (function(stream) {
 	camera.srcObject = stream;
@@ -121,6 +110,8 @@ if (navigator.mediaDevices.getUserMedia) {
 	});
 	}
 	
+	
+
 	////////////////////////////////////////////////////////////////////////////////
 	//          handle arToolkitSource
 	////////////////////////////////////////////////////////////////////////////////
@@ -187,6 +178,7 @@ if (navigator.mediaDevices.getUserMedia) {
 	var markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
 		type : 'pattern',
 		patternUrl : THREEx.ArToolkitContext.baseURL + 'data/data/pattern-marker.patt',
+		 // patternUrl : THREEx.ArToolkitContext.baseURL + 'data/data/pattern-marker(6).patt',
 //patternUrl : THREEx.ArToolkitContext.baseURL + 'data/data/patt.hiro',
 		// patternUrl : THREEx.ArToolkitContext.baseURL + '../data/data/patt.kanji',
 		// as we controls the camera, set changeMatrixMode: 'cameraTransformMatrix'
@@ -206,85 +198,81 @@ if (navigator.mediaDevices.getUserMedia) {
 	///////////////////////////////////////////////
 	//			Add Lights						 //
 	//////////////////////////////////////////////
-	 var lightdi = new THREE.DirectionalLight( 0xffddcc, 10 )
-	 lightdi.position.set( 0, 100, 0 );
-			scene.add( lightdi );
-		var lightamb = new THREE.AmbientLight(  0x000000, 28 );
-			 lightamb.position.set( 0, 50, 0 );
-			scene.add( lightamb );
+	var light = new THREE.DirectionalLight( 0xffddcc, 1 );
+			light.position.set( 1, 1, -5 );
+			scene.add( light );
 			
-				//hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 5 );
-				//hemiLight.color.setHSL( 0.6, 1, 0.6 );
-				//hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-				////hemiLight.position.set( 0, 50, 0 );
-				//scene.add( hemiLight );
-
-			//hemiLightHelper = new THREE.HemisphereLightHelper( hemiLight, 10 );
-			//scene.add( hemiLightHelper );
-		 
+			var light = new THREE.AmbientLight( 0xccccff,  1);
+			light.position.set( -1, -100, 0.5 );
+			scene.add( light );
+			
+			
 	/////////////////////////////////////////////////////
-	//     add json object                             //
+	//     add json object                             /
 	/////////////////////////////////////////////////////
 	
 	loadMymodel();
 	function loadMymodel( callback ) {
 
 			var loader = new THREE.JSONLoader();
-			//loader.load('obj/myfemale4/genesisfemale-5.js', function (geometry) {
-			    //loader.load( 'obj/books/tpomA.js', function( geometry ) {
-				 
-				//loader.load( 'obj/models/spaceshuttle.js', function( geometry ) {
+			loader.load( 'obj/models/DeAndre_Hopkins_test13.js', function( geometry ) {
+			//loader.load( 'obj/models/testGen.js', function( geometry ) {
 			 
-				loader.load( 'obj/models/Helmet_base-model.js', function( geometry ) {
-				 
-			//loader.load( 'obj/models/building_model.js', function( geometry ) {
-				 var material = new THREE.MeshPhongMaterial( {
-				   map: textureLoader.load('Images/Texans-logoUV.jpg'),
-				side: THREE.DoubleSide,
-                                emissive: 0x154360,
-								//map: map,			add if you want to use texture map
-                              color: 0x996633,
-								  envMap: scCube,
-								specular: 0x050505,
-				shininess: 75
+
+				var material = new THREE.MeshPhongMaterial( {
+				//var material = new THREE.MeshLambertMaterial( {
+				    //specular: 0x211111,
+//transparent : true,
+		//opacity: 0.9,
+		   // side: THREE.DoubleSide,
+					map: textureLoader.load('Images/DeAndre_Hopkins_DiffuseMap_fixed_mesh1.jpg'),
+					//map: textureLoader.load('Images/test_diffuse_b!.jpg'),
+						
+				shininess:25
 				} );
 
 				mesh = new THREE.Mesh( geometry, material );
 				scene.add( mesh );
-				mesh.scale.set( 0.8, 0.8, 0.8 );
+				mesh.scale.set( 7, 7, 7 );
+				//Smooth object if mesh is triangulated 
+				mesh.geometry.computeVertexNormals(true);
+				//mesh.position.set(0, -20, 0);
 					// Setsup mesh rotation animation.
 	  function rotateObject(object, degreeX=0, degreeY= 0, degreeZ=0){
 			
 			object.rotateX(THREE.Math.degToRad(degreeX));
 			object.rotateY(THREE.Math.degToRad(degreeY));
 			object.rotateZ(THREE.Math.degToRad(degreeZ));
-			}
-		//to sit standing up
-			//rotateObject(mesh, -90,-90,-90);
-		rotateObject(mesh, -90,0,0);
-		} );
-		}
-		
-		/////////////////////////////
-		//	Helmet Strap and bolts //
-		/////////////////////////////
-		loadMymodelII();
-	function loadMymodelII( callback ) {
+}
+//to sit standing up
+//rotateObject(mesh, 90,90,90);
+rotateObject(mesh, -90,0,0);
+} );
+}
+
+
+		////////////
+		//	Helmet//
+		///////////
+		loadMymodelI();
+	function loadMymodelI( callback ) {
 		var loader2 = new THREE.JSONLoader();
-		loader2.load( 'obj/models/Helmet_base-mode-facemask.js', function( geometry ) {
+		loader2.load( 'obj/models/DeAndre_Hopkins_Helmet_test12.js', function( geometry ) {
+		 
 		 var material = new THREE.MeshPhongMaterial( {
-				    side: THREE.DoubleSide,
-                                //emissive: 0x154360,
-								//map: map,			add if you want to use texture map
-                              color: 0x996633,
-								  //envMap: scCube,
-								specular: 0x050505,
-				shininess: 3
+		 map: textureLoader.load('Images/DeAndre_Hopkins_helmet_DiffuseMap_rig1.jpg'),
+								side: THREE.DoubleSide,
+                                emissive: 0x154360,
+								color: 0x996633,
+							 envMap: scCube,
+								 specular: 0x050505,
+				shininess: 75
 				} );
  
 				mesh2 = new THREE.Mesh( geometry, material );
 				scene.add( mesh2 );
-				mesh2.scale.set( 0.8, 0.8, 0.8 );
+				mesh2.scale.set( 7, 7, 7 );
+				 mesh2.geometry.computeVertexNormals(true);
 					// Setsup mesh rotation animation.
 	  function rotateObject2(object, degreeX=0, degreeY= 0, degreeZ=0){
 			
@@ -297,28 +285,28 @@ if (navigator.mediaDevices.getUserMedia) {
 rotateObject2(mesh2, -90,0,0);
 } );
 }
-		
-		/////////////////////////////
-		//	Helmet facemask-front //
-		/////////////////////////////
-		loadMymodeface();
-	function loadMymodeface( callback ) {
-		var loader3 = new THREE.JSONLoader();
-		loader3.load( 'obj/models/Helmet_base-mode-facemaskfront.js', function( geometry ) {
-		 var material = new THREE.MeshPhongMaterial( {
-				    side: THREE.DoubleSide,
-                                //emissive: 0x154360,
-								//map: map,			add if you want to use texture map
-                              color: 0x000000,
-								  envMap: scCube,
-								specular: 0x050505,
-				shininess: 95
-				} );
 
+
+		////////////
+		//	Ball//
+		///////////
+		loadMymodelII();
+	function loadMymodelII( callback ) {
+		var loader3 = new THREE.JSONLoader();
+		loader3.load( 'obj/models/DeAndre_Hopkins_Ball2.js', function( geometry ) {
+		 var material = new THREE.MeshPhongMaterial( {
+		    map: textureLoader.load('Images/Football3_1.jpg'),
+		 
+								 specular: 0x211111,
+				shininess: 25
+				} );
+ 
 				mesh3 = new THREE.Mesh( geometry, material );
 				scene.add( mesh3 );
-				mesh3.scale.set( 0.8, 0.8, 0.8 );
-					// Sets up mesh rotation animation.
+				mesh3.scale.set( 7, 7, 7 );
+				 mesh3.geometry.computeVertexNormals(true);
+				 
+					// Setup mesh rotation animation.
 	  function rotateObject3(object, degreeX=0, degreeY= 0, degreeZ=0){
 			
 			object.rotateX(THREE.Math.degToRad(degreeX));
@@ -330,41 +318,8 @@ rotateObject2(mesh2, -90,0,0);
 rotateObject3(mesh3, -90,0,0);
 } );
 }
-
-/////////////////////////////
-		//	Helmet bolts //
-		/////////////////////////////
-		loadMymodelbolts();
-	function loadMymodelbolts( callback ) {
-		var loader4 = new THREE.JSONLoader();
-		loader4.load( 'obj/models/Helmet_base-model-bolts.js', function( geometry ) {
-		 var material = new THREE.MeshPhongMaterial( {
-				    side: THREE.DoubleSide,
-                                //emissive: 0x154360,
-								//map: map,			add if you want to use texture map
-                              color: 0x000000,
-								  envMap: scCube,
-								specular: 0xac0c0c0,
-				shininess: 50
-				} );
-
-				mesh4 = new THREE.Mesh( geometry, material );
-				scene.add( mesh4 );
-				mesh4.scale.set( 0.8, 0.8, 0.8 );
-					// Setsup mesh rotation animation.
-	  function rotateObject4(object, degreeX=0, degreeY= 0, degreeZ=0){
-			
-			object.rotateX(THREE.Math.degToRad(degreeX));
-			object.rotateY(THREE.Math.degToRad(degreeY));
-			object.rotateZ(THREE.Math.degToRad(degreeZ));
-}
-//to sit standing up
-//rotateObject(mesh, -90,-90,-90);
-rotateObject4(mesh4, -90,0,0);
-} );
-}
-		
-		////////////////////////////
+	
+////////////////////////////
 		//			Skybox		  //
 		///////////////////////////
 		var sphere, cube;
@@ -373,7 +328,7 @@ rotateObject4(mesh4, -90,0,0);
     var width = window.innerWidth, height = window.innerHeight;
 	 //Add other scene elements
         drawSimpleSkybox();
-       drawShapes();
+      // drawShapes();
 		
 		function drawSimpleSkybox() {
         // define path and box sides images
@@ -402,133 +357,17 @@ rotateObject4(mesh4, -90,0,0);
  
 		
     }
-	
-	
-	   function drawShapes() {
-
-        var manager = new THREE.LoadingManager();
-        manager.onProgress = function ( item, loaded, total ) {
-
-            console.log( item, loaded, total );
-
-        };
-		}
-		
-		
-		
-		 	particleSystem = new THREE.GPUParticleSystem( {
-				maxParticles: 2500
-			} );
-
-		 scene.add( particleSystem );
-
-			// options passed during each spawned
-
-			options = {
-				position: new THREE.Vector3(),
-				positionRandomness: .3,
-				velocity: new THREE.Vector3(),
-				velocityRandomness: .5,
-				color: 0xaa88ff,
-				colorRandomness: .2,
-				turbulence: .5,
-				lifetime: 2,
-				size: 5,
-				sizeRandomness: 1
-			};
-
-			spawnerOptions = {
-				spawnRate: 2500,
-				horizontalSpeed: 1.5,
-				verticalSpeed: 1.33,
-				timeScale: 1
-			};
-
-			//
-
-			gui.add( options, "velocityRandomness", 0, 3 );
-			gui.add( options, "positionRandomness", 0, 3 );
-			gui.add( options, "size", 1, 20 );
-			gui.add( options, "sizeRandomness", 0, 17 );
-			gui.add( options, "colorRandomness", 0, 1 );
-			gui.add( options, "lifetime", .1, 10 );
-			gui.add( options, "turbulence", 0, 1 );
-
-			gui.add( spawnerOptions, "spawnRate", 10, 2500 );
-			gui.add( spawnerOptions, "timeScale", -1, 1 );
-
-			//
-
-			stats = new Stats();
-			container.appendChild( stats.dom );
-
-		 
-
-		
-
-		function onWindowResize() {
-
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-
-			renderer.setSize( window.innerWidth, window.innerHeight );
-
-		}
-			
-				function animate() {
-
-			requestAnimationFrame( animate );
-
-			//controls.update();
-
-			var delta = clock.getDelta() * spawnerOptions.timeScale;
-			tick += delta;
-
-			if ( tick < 0 ) tick = 0;
-
-			if ( delta > 0 ) {
-
-				options.position.x = Math.sin( tick * spawnerOptions.horizontalSpeed ) * 2;
-				options.position.y = Math.sin( tick * spawnerOptions.verticalSpeed ) * 5;
-				options.position.z = Math.sin( tick * spawnerOptions.horizontalSpeed + spawnerOptions.verticalSpeed ) * 5;
-
-				for ( var x = 0; x < spawnerOptions.spawnRate * delta; x++ ) {
-
-					// Yep, that's really it.	Spawning particles is super cheap, and once you spawn them, the rest of
-					// their lifecycle is handled entirely on the GPU, driven by a time uniform updated below
-
-					particleSystem.spawnParticle( options );
-
-				}
-
-			}
-
-		
-		}
-
-		 
-		 
- 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the whole thing on the page
 	//////////////////////////////////////////////////////////////////////////////////
-	
-	 
 
 	// render the scene
 	onRenderFcts.push(function(){
 		renderer.render( scene, camera );
 		
-		mesh.rotation.y = mesh.rotation.y - 0.01;
-		mesh2.rotation.y = mesh.rotation.y - 0.01;
-		mesh3.rotation.y = mesh.rotation.y - 0.01
-		mesh4.rotation.y = mesh.rotation.y - 0.01;
-			particleSystem.update( tick );
-camera.rotation.y = 90;
-			//render();
-			stats.update();
-animate();
-		 
+		mesh.rotation.y = mesh.rotation.y + 0.01;
+		mesh2.rotation.y = mesh2.rotation.y + 0.01;
+		mesh3.rotation.y = mesh3.rotation.y + 0.01;
 	})
 
 	// run the rendering loop
@@ -545,7 +384,6 @@ animate();
 			onRenderFct(deltaMsec/1000, nowMsec/1000)
 		})
 	})
-	
 </script>
 </body>
 </html>

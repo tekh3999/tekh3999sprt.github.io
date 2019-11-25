@@ -34488,11 +34488,8 @@ var TEXTURE_WRAPPING = {
 
 var TEXTURE_FILTER = {
 	NearestFilter: NearestFilter,
-	NearestMipMapNearestFilter: NearestMipMapNearestFilter,
-	NearestMipMapLinearFilter: NearestMipMapLinearFilter,
-	LinearFilter: LinearFilter,
-	LinearMipMapNearestFilter: LinearMipMapNearestFilter,
-	LinearMipMapLinearFilter: LinearMipMapLinearFilter
+	NearestMipMapNearestFilter: NearestMipMapNearestFilter
+	 
 };
 
 /**
